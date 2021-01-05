@@ -1,23 +1,15 @@
 <!-- EJS includes header file -->
 <%- include("partials/header") -%>
 
-<!-- Main Body -->
-<div class="body1">
-
-  <form class="item compose" action="/compose" method="post">
+  <form action="/compose" method="post">
     <h2>Compose</h2>
     <p>Title</p>
     <input type="text" name="newPostTitle" class="blogInput" autocomplete="off">
     <p>Post</p>
-    <!-- <textarea name="newPost" rows="15" cols="100" autocomplete="off"></textarea> -->
-    <textarea name="newPostTitle" class="blogInput blogInputArea" autocomplete="off"></textarea>
-    <button class="btn btn-lg btn-primary btn-block composeButton" type="submit"name="blog">Publish</button>
+    <textarea name="newPostBody" class="blogInput blogInputArea" autocomplete="off"></textarea>
 
+    <button class="btn btn-lg btn-primary btn-block composeButton" type="submit" name="blog">Publish</button>
   </form>
-
-</div>
-
-
 
 
 <!-- EJS includes footer file -->

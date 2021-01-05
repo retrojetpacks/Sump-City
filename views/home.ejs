@@ -1,19 +1,16 @@
 <!-- EJS includes header file -->
 <%- include("partials/header") -%>
 
-<!-- Main Body -->
-<div class="body1">
-  <h1 class="name">Hello, I am Dr. Jack Humphries</h1>
+<!-- <h1 class="name">Hello, I am Dr. Jack Humphries</h1> -->
 
-  <div class="box">
-    <% for (let i=0; i<content.length; i++) { %>
-    <div class="item">
-      <p><%= content[i] %></p>
-    </div>
-    <% } %>
-
-  </div>
+<% content.forEach(function(blogPost){ %>
+<div class="blogPost">
+  <h2><%= blogPost.title %></h2>
+  <p><%= blogPost.content %></p>
 </div>
+<% }); %>
+
+
 
 
 <!-- EJS includes footer file -->
