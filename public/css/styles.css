@@ -1,9 +1,10 @@
 
 body {
   margin: 0;
+  font-family: 'Noto Sans', sans-serif;
 }
 
-.content{
+.container{
   max-width: 1200px;
   margin-left: auto;
   margin-right: auto;
@@ -11,7 +12,7 @@ body {
 
 .parallax {
   /* The image used */
-  background-image: url("images/disc.png");
+  background-image: url("/images/disc.png");
 
   /* Set a specific height */
   min-height: 550px;
@@ -29,7 +30,6 @@ body {
 }
 
 .banner-text {
-  font-family: 'Fjalla One', sans-serif;
   font-size: 64px;
   color: #eeeeee;
 }
@@ -40,7 +40,6 @@ body {
 }
 
 .name{
-  font-family: 'Fjalla One', sans-serif;
   font-size: 72px;
 }
 
@@ -59,9 +58,10 @@ body {
   display: block;
   color: #f2f2f2;
   text-align: center;
-  padding: 14px 16px;
+  padding: 20px 20px;
   text-decoration: none;
-  font-size: 17px;
+  font-size: 22px;
+  transition-duration: 0.4s;
 }
 
 /* Change the color of links on hover */
@@ -76,7 +76,47 @@ body {
   color: white;
 }
 
+.topnav a.active:hover {
+  background-color: #DF85FC;
+  color: black;
+}
+
 /* Hide the link that should open and close the topnav on small screens */
 .topnav .icon {
   display: none;
+}
+
+
+/*Blog compose*/
+.compose{
+  margin: 0 auto 0 auto;
+  max-width: 50em;
+}
+
+/* Child selector > */
+.compose > h2, p {  
+  margin: 1em 0 0.2em 0;
+}
+
+.blogInput {
+  width: 100%;
+}
+
+.blogInputArea {
+  height: 12em;
+  text-align: top;
+}
+
+.composeButton {
+  border: none;
+  width: 10em;
+  margin: 1em 0 0 auto;
+  background-color: #a672c0;
+  transition-duration: 0.4s;
+}
+
+.composeButton:hover {
+  background-color: #fff;
+  color: #462756;
+  box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
 }
