@@ -1,0 +1,158 @@
+SQL vs NoSQL
+CRUD - create, read, update, destroy
+
+SQL
+structured query language, old school
+Uses tables
+MySQL, PostgreSQL
+SQL can be inflexible. 
+Relational
+Can link tables/databases ie customers, produces, orders
+Hard to scale, slows down with more data. ie, big excel table
+Need a schema (plan) before starting
+
+
+NoSQL is NOT ONLY SQL
+Uses JSON objects, key:value pairs
+mongoDB, redis
+Non relational
+Good for one-to-many
+Scalability - database can be distributed across many computers
+
+
+
+
+SQL examples
+
+CREATE TABLE products(
+id INT NOT NULL,       
+name STRING,
+price MONEY,
+PRIMARY KEY (ID)
+)
+//PRIMARY KEY (ID) - must be unique
+
+//Add element to SQL
+INSERT INTO products
+VALUES (1,"Pen", 1.20)
+
+//Add partial element to SQL
+INSERT INTO products (id, name)
+VALUES (2, "Pencil")
+
+//Read DB
+SELECT name, price FROM products  //display name and price cols
+
+//Use WHERE to select by row
+SELECT * FROM products 
+WHERE id=1
+
+//Update data
+UPDATE products 
+SET price = 0.8
+WHERE id = 2
+
+//Add cols to table
+ALTER TABLE products
+ADD stock INT
+
+//Removing
+DELETE from products
+WHERE id = 2
+
+//Create linked (related) tables
+CREATE TABLE orders (
+  id INT NOT NULL,
+  order_number INT,
+  customer_id INT,
+  product_id INT,
+  PRIMARY KEY (id),
+  FOREIGN KEY (customer_id) REFERENCES customers(id),
+  FOREIGN KEY (product_id) REFERENCES products(id)
+  )
+
+
+
+//Match data from related tables, create new tables
+//Output customer data for an order number
+SELECT orders.order_number, customers.first_name, customers.last_name, customers.address
+FROM orders
+INNER JOIN customers ON orders.customer_id = customers.id
+
+//Output product data for an order number
+SELECT orders.order_number, products.name, products.price, products.stock
+FROM orders
+INNER JOIN products ON orders.product_id = products.id
+
+
+
+//MONGODB notes and examples
+C:\Program Files\MongoDB\Server\4.4\data\
+
+mongod - runs db server on local. Saved in data/db in C
+mongo - runs mongo shell, for interacting with db
+{} represents a 'Document', cn have documents inside other documents etc...
+
+show dbs
+shows databases 
+
+use shopDB
+Create a database called shopDB
+
+db
+Which database am i in?
+
+db.products.insertOne(
+    {
+	_id: 1, 
+	name: "Pen", 
+	price: 1.20
+    }
+)
+Inserts Pen into product collection. 
+A collection is like a row in SQL, is automatically created if it does not exist.
+
+show collections
+prints all current colections
+
+db.products.find()
+prints all entries in products
+
+> db.products.find({name: "Pencil"})
+> db.products.find({price: {$gt: 1}})
+> db.products.find({_id: 1}, {name: 1, _id: 0}) //return name, not id
+
+//Update MongoDB
+> db.products.updateOne({_id: 1}, {$set: {stock:32}})
+
+//Delete element
+> db.products.deleteOne({_id:2})
+
+//Insert Document inside an element
+db.products.insertOne({
+    _id: 3,
+    name: "Rubber",
+    price: 1.3,
+    stock: 5,
+    reviews: [
+        {
+            authorName: "Sally",
+    	rating: 5,
+    	review: "Best rubber ev4!"
+        }
+    ]
+})
+
+//Delete database
+switch to database using use
+db.dropDatabase()   //Uh oh, scary...
+
+//Get mongod driver for node
+npm install mongodb
+npm i mongodb (i short for install!)
+
+
+//MONGOOSE
+//mongodb object modelling for node.js. Simplifies mongodb interface in node.js
+//has built in validation checks, thank god. Can require certain parts of schema etc.
+ //see example code in this folder for mongoose examples:)

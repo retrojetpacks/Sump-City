@@ -1,7 +1,9 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const ejs = require("ejs");
-const lodash = require("lodash"); //For word processing
+const _ = require("lodash"); //For word processing
+const mongoose = require("mongoose");
+const date = require(__dirname + "/date.js"); //My custom date module
 
 const app = express();
 app.set('view engine', 'ejs');
@@ -10,81 +12,117 @@ app.use(bodyParser.urlencoded({
 }));
 app.use(express.static('public/'));
 
-const aboutContent = "blah blah blah";
-const projectsContent = "blah whale blah";
-const contactContent = "blah blah blah blah";
+let today = date.getDay();
 
-const blogPosts = [];
 
+// Handy functions - need to extract to module
 function parse(str) {
-  return lodash.replace(lodash.toLower(str), '-', '');
+  return _.replace(_.toLower(str), '-', '');
+}
+
+function nChars(str, n) {
+  return str.substring(9, n);
 }
 
 
+// ============= DB Setup =================//
+mongoose.connect("mongodb://localhost:27017/blogDB", {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+});
+
+const blogSchema = new mongoose.Schema({
+  title: String,
+  //2021-01-07
+  //date: Date,
+  content: String
+});
+
+const Post = mongoose.model("Blog", blogSchema);
+
+const welcome = new Post({
+  title: "Welcome!",
+  content: "This is a simple blog website that I made during my web development course. It uses templating with EJS and saves blog posts to a Mongo database."
+});
+
+
+
+
+
+
+// ============== Pages ===============//
+
 app.get("/", function(req, res) {
-  res.render("home", {
-    content: blogPosts
+  Post.find({}, function(err, foundPosts) {
+    if (err) {
+      console.log("No posts found!");
+    } else {
+      res.render("home", {
+        content: foundPosts
+      });
+    };
   });
 });
 
 app.get("/about", function(req, res) {
-  res.render("about", {
-    content: aboutContent
-  });
+  res.render("about", {});
 });
 
 app.get("/projects", function(req, res) {
-  res.render("projects", {
-    content: projectsContent
-  });
+  res.render("projects", {});
 });
 
 app.get("/contacts", function(req, res) {
-  res.render("contacts", {
-    content: contactContent
-  });
+  res.render("contacts", {});
 });
 
 app.get("/compose", function(req, res) {
-  res.render("compose", {
-    content: contactContent
-  });
+  res.render("compose", {});
 });
 
-//Example of express route params
-app.get("/posts/:anything-:anythingelse.:where", function(req, res) {
-  console.log(req.params.anything);
-  console.log(req.params.anythingelse);
-  console.log(req.params.where);
-});
-
-app.get("/posts/:postName", function(req, res) {
-  let reqTitle = parse(req.params.postName);
-
-  console.log(reqTitle);
-
-  // Challenge: word proc into lowercase pure string
-  blogPosts.forEach(function(post) {
-    if (parse(post.title) === reqTitle) {
-      console.log("Match found: " + req.params.postName);
-    } else {
-      console.log("Not a match");
-    }
-  });
-  res.redirect("/");
-
-});
+// //Example of express route params
+// app.get("/posts/:anything-:anythingelse.:where", function(req, res) {
+//   console.log(req.params.anything);
+//   console.log(req.params.anythingelse);
+//   console.log(req.params.where);
+// });
 
 
+
+
+//Receive blog post from compose
 app.post("/compose", function(req, res) {
-  const post = {
+  const post = new Post({
     title: req.body.newPostTitle,
     content: req.body.newPostBody
-  };
-  blogPosts.push(post);
-
-  res.redirect("/");
+  });
+  post.save("/", function(err, doc) {
+    res.redirect("/");
+  });
 });
+
+
+app.get("/posts/:postName", function(req, res) {
+  //let reqTitle = parse(req.params.postName);
+  let reqId = req.params.postName;
+  console.log("req title: " + reqTitle);
+
+  if (reqTitle != "index.js") {
+    Post.find({
+      title: reqTitle
+    }, function(err, foundPosts) {
+      if (err) {
+        console.log("No posts found!");
+      } else {
+
+        res.render("post", {
+          blogPost: foundPosts[0]
+        });
+      };
+    });
+  };
+});
+
 
 
 app.listen(3000, function() {

@@ -15,4 +15,5 @@ can access parameters from search address, saved to req.params object
 - and . are interpreted literally
 
 
-Lodash
+Lodash - JS library
+
