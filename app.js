@@ -102,21 +102,20 @@ app.post("/compose", function(req, res) {
 });
 
 
-app.get("/posts/:postName", function(req, res) {
+app.get("/posts/:postId", function(req, res) {
   //let reqTitle = parse(req.params.postName);
-  let reqId = req.params.postName;
-  console.log("req title: " + reqTitle);
+  let reqId = req.params.postId;
+  console.log("req Id: " + reqId);
 
-  if (reqTitle != "index.js") {
+  if (reqId != "index.js") { //hack. Fix this?
     Post.find({
-      title: reqTitle
-    }, function(err, foundPosts) {
+      _id: reqId
+    }, function(err, foundPost) {
       if (err) {
         console.log("No posts found!");
       } else {
-
         res.render("post", {
-          blogPost: foundPosts[0]
+          blogPost: foundPost[0]
         });
       };
     });
