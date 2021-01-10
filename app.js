@@ -3,46 +3,85 @@ const bodyParser = require("body-parser");
 const ejs = require("ejs");
 const _ = require("lodash"); //For word processing
 const mongoose = require("mongoose");
-const date = require(__dirname + "/date.js"); //My custom date module
+const svgo = require("svgo");
+const fs = require('fs');
+
 
 const app = express();
+
 app.set('view engine', 'ejs');
+app.use(express.static('public/'));
 app.use(bodyParser.urlencoded({
   extended: true
 }));
-app.use(express.static('public/'));
 
-let today = date.getDay();
+// //==== Clean svg image ====//
+// SVGO = new svgo({
+//   plugins: [{
+//     convertStyleToAttrs: true,
+//     removeStyleElement: true,
+//     removeUselessStrokeAndFill: true,
+//   }]
+// });
+//
+// const filePath = __dirname + "/public/images/sump-city-outlines.svg"
+//
+// fs.readFile(filePath, 'utf8', function(err, data) {
+//   if (err) {
+//     throw err;
+//   }
+//   SVGO.optimize(data, {
+//     path: filePath
+//   }).then(function(result) {
+//     console.log(result);
+//     fs.writeFile(filePath, data, 'utf8',function(err){
+//       if (err){
+//         console.log(err);
+//       }
+//     })
+//   });
+// });
 
 
-// Handy functions - need to extract to module
-function parse(str) {
-  return _.replace(_.toLower(str), '-', '');
-}
-
-function nChars(str, n) {
-  return str.substring(9, n);
-}
 
 
 // ============= DB Setup =================//
-mongoose.connect("mongodb://localhost:27017/blogDB", {
+mongoose.connect("mongodb://localhost:27017/sumpDB", {
   useNewUrlParser: true,
   useUnifiedTopology: true
 });
 
-const blogSchema = new mongoose.Schema({
-  title: String,
-  //2021-01-07
-  //date: Date,
-  content: String
+//District names from SVG
+const districtSchema = new mongoose.Schema({
+  name: String,
+  owner: String,
+  type: String
 });
 
-const Post = mongoose.model("Blog", blogSchema);
+//Campaign Gangs
+const gangSchema = new mongoose.Schema({
+  name: String,
+  faction: String,
+  player: String,
+  colour: String
+});
 
-const welcome = new Post({
-  title: "Welcome!",
-  content: "This is a simple blog website that I made during my web development course. It uses templating with EJS and saves blog posts to a Mongo database."
+//Territory name and rules
+const territorySchema = new mongoose.Schema({
+  name: String,
+  rules: String
+});
+
+const District = mongoose.model("District", districtSchema);
+const Gang = mongoose.model("Gang", gangSchema);
+const Territory = mongoose.model("Territory", territorySchema);
+
+
+const solarFlares = new Gang({
+  name: "The Solar Flares",
+  faction: "Escher",
+  player: "Jack H",
+  colour: "#992288"
 });
 
 
@@ -51,85 +90,63 @@ const welcome = new Post({
 
 
 // ============== Pages ===============//
-
 app.get("/", function(req, res) {
-  Post.find({}, function(err, foundPosts) {
-    if (err) {
-      console.log("No posts found!");
-    } else {
-      res.render("home", {
-        content: foundPosts
-      });
-    };
-  });
-});
 
-app.get("/about", function(req, res) {
-  res.render("about", {});
+  res.render("home");
 });
-
-app.get("/projects", function(req, res) {
-  res.render("projects", {});
-});
-
-app.get("/contacts", function(req, res) {
-  res.render("contacts", {});
-});
-
-app.get("/compose", function(req, res) {
-  res.render("compose", {});
-});
-
-// //Example of express route params
-// app.get("/posts/:anything-:anythingelse.:where", function(req, res) {
-//   console.log(req.params.anything);
-//   console.log(req.params.anythingelse);
-//   console.log(req.params.where);
-// });
 
 
 
 
 //Receive blog post from compose
-app.post("/compose", function(req, res) {
-  const post = new Post({
-    title: req.body.newPostTitle,
-    content: req.body.newPostBody
-  });
-  post.save("/", function(err, doc) {
-    res.redirect("/");
-  });
+app.post("/", function(req, res) {
+  // const post = new Post({
+  //   title: req.body.newPostTitle,
+  //   content: req.body.newPostBody
+  // });
+  // post.save("/", function(err, doc) {
+  //   res.redirect("/");
+  // });
 });
 
 
-app.get("/posts/:postId", function(req, res) {
-  //let reqTitle = parse(req.params.postName);
-  let reqId = req.params.postId;
-  console.log("req Id: " + reqId);
 
-  if (reqId != "index.js") { //hack. Fix this?
-    Post.find({
-      _id: reqId
-    }, function(err, foundPost) {
-      if (err) {
-        console.log("No posts found!");
-      } else {
-        res.render("post", {
-          blogPost: foundPost[0]
-        });
-      };
-    });
-  };
+//Setup district database
+app.get("/districts", function(req, res) {
+  console.log("Districts");
+
+  const fname = "/public/images/sump-city-outlines2.svg"
+
+  let svg = fs.readFileSync(__dirname + fname, 'utf8');
+  let svgs = _.split(svg, 'inkscape:connector-curvature="0"\n       id="');
+
+  svgs.shift(); //remove svg header
+
+  svgs.forEach(function(elem) {
+    const districtName = _.split(elem, '"\n       d=')[0];
+    console.log(districtName);
+
+    District.updateOne({
+        name: districtName
+      }, {
+        name: districtName
+      }, {
+        upsert: true
+      },
+      function(err) {
+        if (err) {
+          res.send(err);
+        } 
+      });
+  });
 });
 
 
 
 app.listen(3000, function() {
-  console.log("DR JH running on port 3000");
+  console.log("Sump City running on port 3000");
 });
 
 
-//How to set this up...
-//npm init
-// npm install express
-//nodemon server.js            //It's that easy
+//Extensions>stylesheet>merge styles
+//comment out style tag in .svg

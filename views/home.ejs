@@ -1,21 +1,11 @@
 <!-- EJS includes header file -->
 <%- include("partials/header") -%>
 
-<!-- <h1 class="name">Hello, I am Dr. Jack Humphries</h1> -->
 
-<% content.forEach(function(blogPost){ %>
-<div class="blogPost">
-  <h2><a href="/posts/<%=blogPost._id%>"><%= blogPost.title %></a></h2>
-  <% if (blogPost.content.length > 100) { %>
-    <p><%=  blogPost.content.substring(0,100) %>...</p>
-
-    <a href="/posts/<%=blogPost._id%>" %>>Read More</a>
-  <% } else {%>
-    <p><%=  blogPost.content %></p>
-<% };%>
+<div class="map-box">
+  <img class="map" src="/images/sump-city-map.png" alt="">
+  <img class="districts" src="/images/sump-city-outlines2.svg" onload="SVGInject(this)" alt="">
 </div>
-<% }); %>
-
 
 <!-- EJS includes footer file -->
 <%- include("partials/footer") -%>
